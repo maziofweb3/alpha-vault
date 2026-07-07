@@ -1,5 +1,9 @@
 # 📈 AlphaVault
 
+<p align="center">
+  <img src="assets/logo.jpg" alt="AlphaVault Logo" width="200" />
+</p>
+
 > Autonomous DeFi trading agent on CROO CAP — monitoring, signals, execution, and transparent P&L accounting
 
 ## Track
