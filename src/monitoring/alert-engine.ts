@@ -35,15 +35,16 @@ export async function checkAlerts(
 
   const sentiment_score = scans.length > 0 ? totalSentiment / scans.length : 0;
 
-  const whale_activity: string[] = [];
+  const rawTransactions = [];
   for (const token of tokens) {
     const wTxs = trackWhales(token);
-    for (const tx of wTxs) {
-      whale_activity.push(
-        `Whale transferred ${tx.amount} ${tx.token} ($${(tx.valueUsdc / 1e6).toFixed(2)}M) from ${tx.from} to ${tx.to}`
-      );
-    }
+    rawTransactions.push(...wTxs);
   }
+
+  const whale_activity = {
+    total_large_transactions: rawTransactions.length,
+    transactions: rawTransactions,
+  };
 
   const recommendation = sentiment_score > 20
     ? 'Bullish sentiment. Potential buying opportunity.'
