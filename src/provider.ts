@@ -79,12 +79,34 @@ export async function runProvider() {
         
       } else if (order.serviceId === config.services.signalsId) {
         // Service 2: Signals
-        deliverable = await executeStrategy({
+        const strategyResult = await executeStrategy({
           strategyType: req.strategy_type || 'momentum',
           tokens: req.tokens || ['ETH'],
           riskTolerance: req.risk_tolerance || 'moderate',
           capitalUsdc: req.capital_usdc,
         });
+
+        // Convert array of objects to array of strings for dashboard compatibility
+        const signals_str = strategyResult.signals.map(s => 
+          `${s.action} ${s.token} at $${s.entry} (Target: $${s.target}, SL: $${s.stopLoss}, Conf: ${s.confidence}%) - ${s.reasoning}`
+        );
+
+        deliverable = {
+          signals: signals_str,
+          market_analysis: {
+            summary: `Technical analysis completed for ${req.tokens?.join(', ') || 'ETH'} using ${req.strategy_type || 'momentum'} strategy.`,
+            timeframe: req.timeframe || '1d',
+          },
+          risk_assessment: {
+            portfolio_volatility: strategyResult.riskAssessment.portfolioVolatility,
+            max_drawdown_estimate: strategyResult.riskAssessment.maxDrawdownEstimate,
+            value_at_risk: strategyResult.riskAssessment.valueAtRisk,
+          },
+          position_sizing: strategyResult.allocations,
+          execution_plan: strategyResult.signals.filter(s => s.action !== 'HOLD').map(s => 
+            `Execute ${s.action} order for ${s.token} at entry price $${s.entry}`
+          ),
+        };
 
       } else if (order.serviceId === config.services.executionId) {
         // Service 3: Fund-transfer Execution
@@ -100,7 +122,7 @@ export async function runProvider() {
         const swapResult = await executeDexSwap('ETH', principal, 'BUY', currentPrice);
         
         // Log transaction locally
-        const loggedTrade = logTrade({
+        logTrade({
           action: 'BUY',
           token: 'ETH',
           amount: swapResult.expectedTokens,
@@ -115,6 +137,15 @@ export async function runProvider() {
         const pnl = calculatePnL(allTrades, pricesMap);
         const accountingHash = computeAccountingHash(allTrades);
 
+        // Convert array of objects to array of strings for dashboard compatibility
+        const tradeLogStr = allTrades.map(t => 
+          `${t.timestamp} | ${t.action} ${t.amount} ${t.token} @ $${t.price} (Fee: $${t.fee}) | Tx: ${t.txHash}`
+        );
+
+        const positionsStr = [
+          `ETH: ${swapResult.expectedTokens} ETH @ average entry price $${swapResult.averagePrice}`
+        ];
+
         deliverable = {
           execution_summary: {
             trades_executed: 1,
@@ -128,14 +159,8 @@ export async function runProvider() {
             fees: pnl.fees,
             net_return: pnl.netReturn,
           },
-          trade_log: allTrades,
-          positions: [
-            {
-              token: 'ETH',
-              amount: swapResult.expectedTokens,
-              entry_price: swapResult.averagePrice,
-            }
-          ],
+          trade_log: tradeLogStr,
+          positions: positionsStr,
           risk_metrics: {
             sharpe_ratio: 2.1,
             max_drawdown: 0.05,
@@ -145,7 +170,13 @@ export async function runProvider() {
 
       } else if (order.serviceId === config.services.healthId) {
         // Service 4: Health Check
-        deliverable = await analyzePortfolio(req.wallet_address, req.chain);
+        const analysis = await analyzePortfolio(req.wallet_address, req.chain);
+        deliverable = {
+          score: analysis.score,
+          warnings: analysis.warnings,
+          diversification_score: analysis.diversificationScore,
+          gas_recommendation: analysis.gasRecommendation,
+        };
       } else {
         throw new Error(`Unsupported service ID: ${order.serviceId}`);
       }

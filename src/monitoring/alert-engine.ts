@@ -1,12 +1,12 @@
-import { scanTokens } from '../market/scanner.js';
-import { trackWhales } from './whale-tracker.js';
+import { scanTokens } from "../market/scanner.js";
+import { trackWhales } from "./whale-tracker.js";
 
 /**
  * Scans prices and checks thresholds for user-defined monitoring alerts.
  */
 export async function checkAlerts(
   tokens: string[],
-  thresholds?: Record<string, { upper?: number; lower?: number }>
+  thresholds?: Record<string, { upper?: number; lower?: number }>,
 ) {
   const scans = await scanTokens(tokens);
   const alerts_triggered: string[] = [];
@@ -25,10 +25,14 @@ export async function checkAlerts(
     const limits = thresholds?.[scan.symbol];
     if (limits) {
       if (limits.upper && scan.price >= limits.upper) {
-        alerts_triggered.push(`${scan.symbol} price ($${scan.price}) exceeded upper limit $${limits.upper}`);
+        alerts_triggered.push(
+          `${scan.symbol} price ($${scan.price}) exceeded upper limit $${limits.upper}`,
+        );
       }
       if (limits.lower && scan.price <= limits.lower) {
-        alerts_triggered.push(`${scan.symbol} price ($${scan.price}) dropped below lower limit $${limits.lower}`);
+        alerts_triggered.push(
+          `${scan.symbol} price ($${scan.price}) dropped below lower limit $${limits.lower}`,
+        );
       }
     }
   }
@@ -46,11 +50,12 @@ export async function checkAlerts(
     transactions: rawTransactions,
   };
 
-  const recommendation = sentiment_score > 20
-    ? 'Bullish sentiment. Potential buying opportunity.'
-    : sentiment_score < -20
-    ? 'Bearish sentiment. Consider risk mitigation or hedging.'
-    : 'Neutral market conditions.';
+  const recommendation =
+    sentiment_score > 20
+      ? "Bullish sentiment. Potential buying opportunity."
+      : sentiment_score < -20
+        ? "Bearish sentiment. Consider risk mitigation or hedging."
+        : "Neutral market conditions.";
 
   return {
     market_snapshot,
