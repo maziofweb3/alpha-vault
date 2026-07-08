@@ -21,12 +21,12 @@ npm run dev
 
 ## Services
 
-| Service | Price | SLA | Description |
-|---|---|---|---|
-| Market Monitor & Alerts | 0.25 USDC | 15 min | Real-time market snapshots and alert triggers |
-| Trading Strategy Signals | 1.00 USDC | 20 min | Technical + on-chain signal generation |
-| Trade Execution & Accounting | 2.00 USDC + 0.5% | 30 min | Execute trades with full P&L reporting |
-| Portfolio Health Check | 0.75 USDC | 15 min | Wallet analysis and risk assessment |
+| Service                      | Price            | SLA    | Description                                   |
+| ---------------------------- | ---------------- | ------ | --------------------------------------------- |
+| Market Monitor & Alerts      | 0.25 USDC        | 15 min | Real-time market snapshots and alert triggers |
+| Trading Strategy Signals     | 1.00 USDC        | 20 min | Technical + on-chain signal generation        |
+| Trade Execution & Accounting | 2.00 USDC + 0.5% | 30 min | Execute trades with full P&L reporting        |
+| Portfolio Health Check       | 0.75 USDC        | 15 min | Wallet analysis and risk assessment           |
 
 ## Project Structure
 
@@ -69,7 +69,3 @@ src/
     ├── hash.ts
     └── rate-limiter.ts
 ```
-
-## Full Plan
-
-See [PLAN.md](./PLAN.md) for the complete implementation plan with architecture diagrams, code examples, and milestones.
